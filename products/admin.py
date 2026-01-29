@@ -10,6 +10,7 @@ from .models import (
     FilterType,
     ProductStatistic,
     ProductReview,
+    ProductProperty,
 )
 
 
@@ -22,3 +23,5 @@ admin.site.register(Banner)
 admin.site.register(FilterType)
 admin.site.register(FilterValue)
 admin.site.register(ProductStatistic)
+admin.site.register(ProductProperty)
+admin.site.register(ProductReview)

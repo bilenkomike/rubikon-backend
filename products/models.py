@@ -221,3 +221,34 @@ class ProductReview(models.Model):
 
     def __str__(self):
         return f"{self.product.name} – {self.rating}★"
+
+
+class ProductProperty(models.Model):
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        null=False,
+        blank=False,
+    )
+    name = models.CharField(
+        max_length=150,
+        null=False,
+        blank=False,
+    )
+    name_ru = models.CharField(
+        max_length=150,
+        null=False,
+        blank=False,
+    )
+    value = models.CharField(
+        max_length=150,
+        null=False,
+        blank=False,
+    )
+    value_ru = models.CharField(
+        max_length=150,
+        null=False,
+        blank=False,
+    )
+    def __str__(self):
+        return f"{self.name} - {self.value}"
