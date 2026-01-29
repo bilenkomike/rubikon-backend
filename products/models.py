@@ -4,8 +4,50 @@ from core.models.timestamped import TimeStampedModel
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 
+class Category(models.Model):
+    name = models.CharField(max_length=120)
+    name_ru = models.CharField(max_length=120)
+    slug = AutoSlugField(
+        populate_from="name",
+        unique=True,
+        editable=False
+    )
+    image = models.ImageField(
+        upload_to="categories/",
+        null=False,
+        blank=False,
+    )
+
+    def __str__(self):
+        return self.slug
+
+
+class SubCategory(models.Model):
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.CASCADE,
+    )
+    name = models.CharField(max_length=120)
+    name_ru = models.CharField(max_length=120)
+    slug = AutoSlugField(
+        populate_from="name",
+        unique=True,
+        editable=False
+    )
+
+    def __str__(self):
+        return self.name
+
+
 class FilterType(models.Model):
     """Filter name model."""
+    category = models.ForeignKey(
+        SubCategory,
+        on_delete=models.CASCADE,
+        null=True,
+        default=None,
+        blank=False,
+    )
     name = models.CharField(
         max_length=200,
         null=False,
@@ -55,41 +97,6 @@ class Banner(models.Model):
 
     def __str__(self):
         return self.alt
-
-
-class Category(models.Model):
-    name = models.CharField(max_length=120)
-    name_ru = models.CharField(max_length=120)
-    slug = AutoSlugField(
-        populate_from="name",
-        unique=True,
-        editable=False
-    )
-    image = models.ImageField(
-        upload_to="categories/",
-        null=False,
-        blank=False,
-    )
-
-    def __str__(self):
-        return self.slug
-
-
-class SubCategory(models.Model):
-    category = models.ForeignKey(
-        Category,
-        on_delete=models.CASCADE,
-    )
-    name = models.CharField(max_length=120)
-    name_ru = models.CharField(max_length=120)
-    slug = AutoSlugField(
-        populate_from="name",
-        unique=True,
-        editable=False
-    )
-
-    def __str__(self):
-        return self.name
 
 
 class Product(TimeStampedModel):
@@ -250,5 +257,6 @@ class ProductProperty(models.Model):
         null=False,
         blank=False,
     )
+
     def __str__(self):
         return f"{self.name} - {self.value}"

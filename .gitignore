@@ -5,3 +5,4 @@
 /.tox/
 /.pytest_cache/
 media/
+__pycache__/

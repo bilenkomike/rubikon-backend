@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
-
+from datetime import timedelta
 from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -43,7 +43,9 @@ INSTALLED_APPS = [
 	'django.contrib.sessions',
 	'django.contrib.messages',
 	'django.contrib.staticfiles',
+	"corsheaders",
 	'rest_framework',
+	"rest_framework_simplejwt.token_blacklist",
 	'core',
 	'autoslug',
 	'products',
@@ -88,7 +90,10 @@ TEMPLATES = [
 REST_FRAMEWORK = {
 	'DEFAULT_PERMISSION_CLASSES': [
 		'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
-	]
+	],
+	"DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
 }
 
 WSGI_APPLICATION = 'core.wsgi.application'
@@ -149,6 +154,7 @@ MEDIA_ROOT = BASE_DIR / "media"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+CORS_ALLOW_ALL_ORIGINS = True  # dev only
 
 
 LOGGING = {
@@ -163,11 +169,21 @@ LOGGING = {
     },
 }
 
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
 
-FORCE_SCRIPT_NAME = "/backend"
+    "AUTH_HEADER_TYPES": ("Bearer",),
+
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+}
+
+
 # SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "http")
 
 if not DEBUG:
+	FORCE_SCRIPT_NAME = "/backend"
 	USE_X_FORWARDED_HOST = True
 	CSRF_COOKIE_SECURE = True
 	SESSION_COOKIE_SECURE = True
