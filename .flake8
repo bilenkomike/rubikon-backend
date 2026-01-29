@@ -1,0 +1,6 @@
+[flake8]
+exclude = venv, migrations
+max-line-length = 92
+ignore = E231,C816
+select = E301,E501
+extend-ignore = D

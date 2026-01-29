@@ -1,0 +1,7 @@
+/venv/
+.idea
+/.env
+/data/
+/.tox/
+/.pytest_cache/
+media/
