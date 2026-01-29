@@ -58,6 +58,7 @@ services:
 volumes:
   postgres_data:
   staticfiles:
+  media:
   frontend_dist:
   certbot_etc:
   certbot_var:
