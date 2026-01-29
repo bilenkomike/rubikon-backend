@@ -34,14 +34,31 @@ services:
       - staticfiles:/app/staticfiles:ro
       - frontend_dist:/frontend:ro
       - media:/app/media:ro
+
+      # SSL + ACME
+      - certbot_etc:/etc/letsencrypt
+      - certbot_var:/var/lib/letsencrypt
+      - certbot_www:/var/www/certbot
     ports:
       - "80:80"
+      - "443:443"
     depends_on:
       - backend
       - frontend
     restart: always
 
+  certbot:
+    image: certbot/certbot:latest
+    volumes:
+      - certbot_etc:/etc/letsencrypt
+      - certbot_var:/var/lib/letsencrypt
+      - certbot_www:/var/www/certbot
+    restart: "no"
+
 volumes:
   postgres_data:
   staticfiles:
   frontend_dist:
+  certbot_etc:
+  certbot_var:
+  certbot_www:
