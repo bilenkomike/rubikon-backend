@@ -1,0 +1,31 @@
+services:
+  backend:
+    build:
+      context: ./rubikon-backend
+      dockerfile: prod.Dockerfile
+    env_file:
+      - ./rubikon-backend/.env
+    depends_on:
+      - db
+    restart: always
+
+  db:
+    image: postgres:16
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - ./rubikon-backend/.env
+    restart: always
+
+  nginx:
+    image: nginx:alpine
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: always
+
+volumes:
+  postgres_data:
