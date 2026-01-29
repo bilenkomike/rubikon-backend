@@ -33,7 +33,7 @@ services:
       - ./nginx:/etc/nginx/conf.d
       - staticfiles:/app/staticfiles:ro
       - frontend_dist:/frontend:ro
-      - media:/app/media:ro
+      - media:/app/media
 
       # SSL + ACME
       - certbot_etc:/etc/letsencrypt
