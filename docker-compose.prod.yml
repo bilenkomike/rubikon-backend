@@ -7,7 +7,17 @@ services:
       - ./rubikon-backend/.env
     depends_on:
       - db
+    volumes:
+      - staticfiles:/app/staticfiles
     restart: always
+
+  frontend:
+    build: ./rubikon-frontend
+    volumes:
+      - frontend_dist:/app/dist
+    depends_on:
+      - backend
+    restart: "no"
 
   db:
     image: postgres:16
@@ -21,11 +31,17 @@ services:
     image: nginx:alpine
     volumes:
       - ./nginx:/etc/nginx/conf.d
+      - staticfiles:/app/staticfiles:ro
+      - frontend_dist:/frontend:ro
+      - media:/app/media:ro
     ports:
       - "80:80"
     depends_on:
       - backend
+      - frontend
     restart: always
 
 volumes:
   postgres_data:
+  staticfiles:
+  frontend_dist:
