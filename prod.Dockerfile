@@ -18,4 +18,4 @@ COPY . .
 RUN addgroup --system app && adduser --system --ingroup app app
 USER app
 
-CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000"]
+CMD ["gunicorn", "core.wsgi:application", "--bind", "0.0.0.0:8000"]
