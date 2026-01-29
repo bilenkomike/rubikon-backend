@@ -15,6 +15,9 @@ RUN apt-get update && apt-get install -y libpq-dev && rm -rf /var/lib/apt/lists/
 COPY --from=builder /install /usr/local
 COPY . .
 
+RUN mkdir -p /app/staticfiles /app/media \
+    && chown -R app:app /app
+
 RUN addgroup --system app && adduser --system --ingroup app app
 USER app
 
