@@ -148,3 +148,30 @@ MEDIA_ROOT = BASE_DIR / "media"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {"class": "logging.StreamHandler"},
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "INFO",
+    },
+}
+
+
+if not DEBUG:
+	SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+	USE_X_FORWARDED_HOST = True
+	CSRF_COOKIE_SECURE = True
+	SESSION_COOKIE_SECURE = True
+	SECURE_SSL_REDIRECT = True
+
+	SECURE_HSTS_SECONDS = 31536000
+	SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+	SECURE_HSTS_PRELOAD = True
+	STATIC_URL = "/static/"
+	STATIC_ROOT = BASE_DIR / "staticfiles"
