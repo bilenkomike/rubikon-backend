@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 from datetime import timedelta
 from decouple import config
@@ -181,9 +182,11 @@ SIMPLE_JWT = {
 
 
 # SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "http")
+FORCE_SCRIPT_NAME = os.environ.get("FORCE_SCRIPT_NAME", "")
+
 
 if not DEBUG:
-	FORCE_SCRIPT_NAME = "/backend"
+
 	USE_X_FORWARDED_HOST = True
 	CSRF_COOKIE_SECURE = True
 	SESSION_COOKIE_SECURE = True
