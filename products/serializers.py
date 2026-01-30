@@ -69,6 +69,7 @@ class SubCategorySerializer(ModelSerializer):
             "name",
             "name_ru",
             "slug",
+            "image",
         )
 
 

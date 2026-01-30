@@ -34,6 +34,11 @@ class SubCategory(models.Model):
         unique=True,
         editable=False
     )
+    image = models.ImageField(
+        upload_to="subcategories/",
+        null=True,
+        blank=False,
+    )
 
     def __str__(self):
         return self.name
@@ -94,6 +99,10 @@ class Banner(models.Model):
         blank=False,
     )
     alt = models.CharField(max_length=255, verbose_name="Name")
+    url = models.URLField(
+        null=True,
+        blank=False,
+    )
 
     def __str__(self):
         return self.alt
