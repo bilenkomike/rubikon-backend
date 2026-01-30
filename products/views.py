@@ -204,3 +204,11 @@ class FilterListAPIView(APIView):
             "max_price": price["max_price"],
             "filters": FilterTypeWithValuesSerializer(filters, many=True).data,
         })
+
+
+class CategoryRetrieveAPIView(RetrieveAPIView):
+    serializer_class = CategorySerializer
+    lookup_field = "slug"
+
+    def get_queryset(self):
+        return Category.objects.all()

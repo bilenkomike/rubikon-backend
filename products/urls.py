@@ -7,12 +7,17 @@ from .views import (
     CategoryListAPIView,
     SubCategoryListAPIView,
     FilterListAPIView,
+    CategoryRetrieveAPIView,
 )
 
 
 urlpatterns = [
 
     path("categories/", CategoryListAPIView.as_view()),
+    path(
+      "categories/<slug:slug>/",
+        CategoryRetrieveAPIView.as_view(),
+    ),
     path(
         "categories/<slug:slug>/subcategories/",
         SubCategoryListAPIView.as_view(),
