@@ -9,6 +9,7 @@ services:
       - db
     volumes:
       - staticfiles:/app/staticfiles
+      - media:/app/media
     restart: always
 
   frontend:
