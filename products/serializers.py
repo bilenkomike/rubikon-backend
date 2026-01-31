@@ -217,6 +217,7 @@ class PromoBannerSerializer(ModelSerializer):
         fields = (
             "id",
             "image",
+            "image_mobile",
             "alt",
             "category",
         )

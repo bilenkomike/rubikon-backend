@@ -117,6 +117,11 @@ class PromoBanner(models.Model):
         null=False,
         blank=False,
     )
+    image_mobile = models.ImageField(
+        upload_to="banners-mobile/",
+        null=True,
+        blank=False,
+    )
     alt = models.CharField(max_length=255, verbose_name="Name")
     category = models.ForeignKey(
         Category,
