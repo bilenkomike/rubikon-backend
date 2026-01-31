@@ -1,12 +1,26 @@
 from rest_framework.serializers import (
     ModelSerializer,
+    Serializer,
     ValidationError,
     CharField,
 )
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth import get_user_model
+from orders.models import Wishlist
 
 User = get_user_model()
+
+
+from django.contrib.auth.password_validation import validate_password
+
+
+class ChangePasswordSerializer(Serializer):
+    old_password = CharField(write_only=True)
+    new_password = CharField(write_only=True)
+
+    def validate_new_password(self, value):
+        validate_password(value)
+        return value
 
 
 class ProfileSerializer(ModelSerializer):
@@ -67,3 +81,12 @@ class RegisterSerializer(ModelSerializer):
             last_name=validated_data.get("last_name", ""),
         )
         return user
+
+
+class WishlistSerializer(ModelSerializer):
+    class Meta:
+        model = Wishlist
+        fields = (
+            "id",
+            "product",
+        )
