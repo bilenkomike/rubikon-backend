@@ -7,6 +7,7 @@ from rest_framework.serializers import (
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth import get_user_model
 from orders.models import Wishlist
+from products.serializers import ProductSmallSerializer
 
 User = get_user_model()
 
@@ -84,6 +85,8 @@ class RegisterSerializer(ModelSerializer):
 
 
 class WishlistSerializer(ModelSerializer):
+    product = ProductSmallSerializer
+
     class Meta:
         model = Wishlist
         fields = (
