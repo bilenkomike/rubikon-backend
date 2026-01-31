@@ -47,7 +47,7 @@ class SubCategory(models.Model):
 class FilterType(models.Model):
     """Filter name model."""
     category = models.ForeignKey(
-        SubCategory,
+        Category,
         on_delete=models.CASCADE,
         null=True,
         default=None,
