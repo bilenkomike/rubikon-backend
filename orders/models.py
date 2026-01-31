@@ -2,6 +2,7 @@ from django.db import models
 from users.models import User
 from products.models import Product
 from core.models.timestamped import TimeStampedModel
+from products.models import FilterValue
 
 
 class Wishlist(models.Model):
@@ -48,6 +49,12 @@ class OrderItem(models.Model):
 
     price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.PositiveIntegerField()
+    filter_values = models.ManyToManyField(
+        FilterValue,
+        blank=True,
+        related_name="order_items",
+        help_text="Selected filter values",
+    )
 
     def get_total(self):
         return self.price * self.quantity

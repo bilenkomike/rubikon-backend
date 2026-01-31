@@ -13,7 +13,7 @@ from .models import (
     SubCategory,
     FilterType,
     ProductStatistic,
-    Banner,
+    PromoBanner,
 )
 from .serializers import (
     ProductSmallSerializer,
@@ -23,7 +23,7 @@ from .serializers import (
     CategorySerializer,
     SubCategorySerializer,
     FilterTypeWithValuesSerializer,
-    BannerSerializer,
+    PromoBannerSerializer,
 )
 from rest_framework.pagination import PageNumberPagination
 
@@ -217,6 +217,6 @@ class CategoryRetrieveAPIView(RetrieveAPIView):
 
 
 class BannersListAPIView(ListAPIView):
-    serializer_class = BannerSerializer
-    model = Banner
-    queryset = Banner.objects.all()
+    serializer_class = PromoBannerSerializer
+    model = PromoBanner
+    queryset = PromoBanner.objects.all()

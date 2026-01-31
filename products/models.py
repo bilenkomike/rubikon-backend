@@ -88,10 +88,29 @@ class FilterValue(models.Model):
     )
 
     def __str__(self):
-        return self.value
+        return f"{self.filter.name} - {self.filter.category.name} - {self.value}"
+
+#
+# class Banner(models.Model):
+#     """Banner model data structure."""
+#     image = models.ImageField(
+#         upload_to="banners/",
+#         null=False,
+#         blank=False,
+#     )
+#     alt = models.CharField(max_length=255, verbose_name="Name")
+#     category = models.ForeignKey(
+#         Category,
+#         on_delete=models.SET_NULL,
+#         null=True,
+#         blank=False,
+#     )
+#
+#     def __str__(self):
+#         return self.category.name
 
 
-class Banner(models.Model):
+class PromoBanner(models.Model):
     """Banner model data structure."""
     image = models.ImageField(
         upload_to="banners/",
@@ -108,7 +127,6 @@ class Banner(models.Model):
 
     def __str__(self):
         return self.category.name
-
 
 class Product(TimeStampedModel):
     category = models.ForeignKey(SubCategory, on_delete=models.SET_NULL, null=True)

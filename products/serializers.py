@@ -2,7 +2,7 @@ from rest_framework.serializers import ModelSerializer, SerializerMethodField
 from .models import (
     FilterType,
     FilterValue,
-    Banner,
+    PromoBanner,
     Category,
     SubCategory,
     Product,
@@ -210,10 +210,10 @@ class FilterTypeWithValuesSerializer(ModelSerializer):
         )
 
 
-class BannerSerializer(ModelSerializer):
+class PromoBannerSerializer(ModelSerializer):
     category = CategorySerializer()
     class Meta:
-        model = Banner
+        model = PromoBanner
         fields = (
             "id",
             "image",

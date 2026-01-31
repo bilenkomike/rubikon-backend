@@ -5,7 +5,7 @@ from .models import (
     SubCategory,
     ProductImage,
     ProductDescriptionItem,
-    Banner,
+    PromoBanner,
     FilterValue,
     FilterType,
     ProductStatistic,
@@ -19,7 +19,7 @@ admin.site.register(Category)
 admin.site.register(SubCategory)
 admin.site.register(ProductImage)
 admin.site.register(ProductDescriptionItem)
-admin.site.register(Banner)
+admin.site.register(PromoBanner)
 admin.site.register(FilterType)
 admin.site.register(FilterValue)
 admin.site.register(ProductStatistic)
