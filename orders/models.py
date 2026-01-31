@@ -3,6 +3,7 @@ from users.models import User
 from products.models import Product
 from core.models.timestamped import TimeStampedModel
 from products.models import FilterValue
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 class Wishlist(models.Model):
@@ -49,6 +50,14 @@ class OrderItem(models.Model):
 
     price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.PositiveIntegerField()
+    sale = models.PositiveIntegerField(
+        default=0,
+        validators=[
+            MinValueValidator(0),
+            MaxValueValidator(100),
+        ],
+        help_text="Discount percentage from 0 to 100"
+    )
     filter_values = models.ManyToManyField(
         FilterValue,
         blank=True,
