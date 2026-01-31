@@ -85,7 +85,7 @@ class RegisterSerializer(ModelSerializer):
 
 
 class WishlistSerializer(ModelSerializer):
-    product = ProductSmallSerializer
+    product = ProductSmallSerializer()
 
     class Meta:
         model = Wishlist
