@@ -99,13 +99,15 @@ class Banner(models.Model):
         blank=False,
     )
     alt = models.CharField(max_length=255, verbose_name="Name")
-    url = models.URLField(
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.SET_NULL,
         null=True,
         blank=False,
     )
 
     def __str__(self):
-        return self.alt
+        return self.category.name
 
 
 class Product(TimeStampedModel):

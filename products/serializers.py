@@ -36,16 +36,6 @@ class FilterValueSerializer(ModelSerializer):
         )
 
 
-class BannerSerializer(ModelSerializer):
-    class Meta:
-        model = Banner
-        fields = (
-            "id",
-            "image",
-            "alt",
-        )
-
-
 class CategorySerializer(ModelSerializer):
     class Meta:
         model = Category
@@ -217,4 +207,16 @@ class FilterTypeWithValuesSerializer(ModelSerializer):
             "name",
             "name_ru",
             "values",
+        )
+
+
+class BannerSerializer(ModelSerializer):
+    category = CategorySerializer()
+    class Meta:
+        model = Banner
+        fields = (
+            "id",
+            "image",
+            "alt",
+            "category",
         )

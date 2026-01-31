@@ -8,11 +8,12 @@ from .views import (
     SubCategoryListAPIView,
     FilterListAPIView,
     CategoryRetrieveAPIView,
+    BannersListAPIView,
 )
 
 
 urlpatterns = [
-
+    path("banners/", BannersListAPIView.as_view()),
     path("categories/", CategoryListAPIView.as_view()),
     path(
       "categories/<slug:slug>/",
@@ -28,4 +29,5 @@ urlpatterns = [
     path("<slug:slug>/", ProductDetailAPIView.as_view()),
     path("<slug:slug>/reviews/", ProductReviewListAPIView.as_view()),
     path("<slug:slug>/reviews/create/", ProductReviewCreateAPIView.as_view()),
+
 ]
