@@ -63,6 +63,7 @@ class WishlistAddAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
+        print(request.data, request.data.get("product_id"))
         product_id = request.data.get("product_id")
 
         if not product_id:
