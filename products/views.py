@@ -5,6 +5,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView
 from rest_framework.permissions import AllowAny
 from django.db.models import Sum, F
+from django.db.models import Count
 from django.db.models.functions import Coalesce
 from django.db.models import Value
 from .models import (
@@ -56,11 +57,27 @@ class ProductListAPIView(ListAPIView):
         if subcategory:
             qs = qs.filter(category__slug=subcategory)
 
+        # filters = params.get("filters")
+        # if filters:
+        #     filter_ids = [int(f) for f in filters.split(",") if f.isdigit()]
+        #     if filter_ids:
+        #         qs = qs.filter(filters__id__in=filter_ids).distinct()
         filters = params.get("filters")
         if filters:
             filter_ids = [int(f) for f in filters.split(",") if f.isdigit()]
+
             if filter_ids:
-                qs = qs.filter(filters__id__in=filter_ids).distinct()
+                qs = (
+                    qs.filter(filters__id__in=filter_ids)
+                    .annotate(
+                        matched_filters=Count(
+                            "filters",
+                            filter=Q(filters__id__in=filter_ids),
+                            distinct=True,
+                        )
+                    )
+                    .filter(matched_filters=len(filter_ids))
+                )
 
         price_min = params.get("price_min")
         if price_min:
