@@ -2,6 +2,7 @@ from django.db import models
 from autoslug import AutoSlugField
 from core.models.timestamped import TimeStampedModel
 from django.core.validators import MinValueValidator, MaxValueValidator
+import uuid
 
 
 class Category(models.Model):
@@ -90,25 +91,6 @@ class FilterValue(models.Model):
     def __str__(self):
         return f"{self.filter.name} - {self.filter.category.name} - {self.value}"
 
-#
-# class Banner(models.Model):
-#     """Banner model data structure."""
-#     image = models.ImageField(
-#         upload_to="banners/",
-#         null=False,
-#         blank=False,
-#     )
-#     alt = models.CharField(max_length=255, verbose_name="Name")
-#     category = models.ForeignKey(
-#         Category,
-#         on_delete=models.SET_NULL,
-#         null=True,
-#         blank=False,
-#     )
-#
-#     def __str__(self):
-#         return self.category.name
-
 
 class PromoBanner(models.Model):
     """Banner model data structure."""
@@ -132,6 +114,7 @@ class PromoBanner(models.Model):
 
     def __str__(self):
         return self.category.name
+
 
 class Product(TimeStampedModel):
     category = models.ForeignKey(SubCategory, on_delete=models.SET_NULL, null=True)
@@ -164,6 +147,13 @@ class Product(TimeStampedModel):
         related_name="products",
         blank=True
     )
+    vendor_code = models.CharField(max_length=255, null=True, blank=False)
+    vendor_code_public = models.CharField(max_length=255, null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.vendor_code_public:
+            self.vendor_code_public = uuid.uuid4().hex[:12].upper()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name

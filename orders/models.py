@@ -67,3 +67,18 @@ class OrderItem(models.Model):
 
     def get_total(self):
         return self.price * self.quantity
+
+
+class CartItem(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=False, blank=False)
+    product = models.ForeignKey(Product, on_delete=models.PROTECT)
+    quantity = models.PositiveIntegerField()
+    filter_values = models.ManyToManyField(
+        FilterValue,
+        blank=True,
+        related_name="cart_items",
+        help_text="Selected filter values",
+    )
+
+    def get_total(self):
+        return self.product.price * self.quantity
