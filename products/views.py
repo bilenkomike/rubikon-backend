@@ -5,7 +5,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView
 from rest_framework.permissions import AllowAny
 from django.db.models import Sum, F
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.db.models.functions import Coalesce
 from django.db.models import Value
 from .models import (
