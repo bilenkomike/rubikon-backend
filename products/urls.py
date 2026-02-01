@@ -5,6 +5,7 @@ from .views import (
     ProductReviewListAPIView,
     ProductReviewCreateAPIView,
     CategoryListAPIView,
+    SubCategoryRetrieveAPIView,
     SubCategoryListAPIView,
     FilterListAPIView,
     CategoryRetrieveAPIView,
@@ -23,6 +24,10 @@ urlpatterns = [
         "categories/<slug:slug>/subcategories/",
         SubCategoryListAPIView.as_view(),
         name="subcategory-list",
+    ),
+    path(
+      "categories/<slug:slug>/subcategories/<slug:slug>/",
+    SubCategoryRetrieveAPIView.as_view(),
     ),
     path("filters/", FilterListAPIView.as_view(), name="filter-list"),
     path("", ProductListAPIView.as_view()),

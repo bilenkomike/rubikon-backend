@@ -231,6 +231,14 @@ class CategoryRetrieveAPIView(RetrieveAPIView):
         return Category.objects.all()
 
 
+class SubCategoryRetrieveAPIView(RetrieveAPIView):
+    serializer_class = SubCategorySerializer
+    lookup_field = "slug"
+
+    def get_queryset(self):
+        return SubCategory.objects.all()
+
+
 class BannersListAPIView(ListAPIView):
     serializer_class = PromoBannerSerializer
     model = PromoBanner
