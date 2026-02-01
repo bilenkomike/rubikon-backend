@@ -30,9 +30,9 @@ from rest_framework.pagination import PageNumberPagination
 
 
 class ProductPagination(PageNumberPagination):
-    page_size = 1
+    page_size = 48
     page_size_query_param = None
-    max_page_size = 1
+    max_page_size = 48
 
 
 class ProductListAPIView(ListAPIView):
