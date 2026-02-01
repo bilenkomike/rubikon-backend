@@ -170,28 +170,26 @@ class FilterListAPIView(APIView):
         subcategory_slug = request.query_params.get("subcategory")
         if not subcategory_slug:
             raise ValidationError({
-                "subcategory": "This query param is required (subcategory=<slug>)"
+                "subcategory": "This query param is required (category=<slug>)"
             })
 
-        # 🔹 get subcategory once
         subcategory = SubCategory.objects.filter(
             slug=subcategory_slug
         ).first()
+        category = subcategory.category
 
-        if not subcategory:
+        if not category:
             raise ValidationError({
                 "subcategory": "Invalid subcategory slug"
             })
 
-        # 🔹 filters linked to this subcategory
         filters = (
             FilterType.objects
-            .filter(category=subcategory)
+            .filter(category=category)
             .prefetch_related("filtervalue_set")
             .order_by("id")
         )
 
-        # 🔹 price range from products in this subcategory
         price = (
             Product.objects
             .filter(category=subcategory)
