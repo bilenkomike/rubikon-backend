@@ -30,12 +30,6 @@ def create_order_from_cart(user, note=""):
         price = product.price
         sale = product.sale or 0
 
-        if sale:
-            price = price - (price * Decimal(sale) / Decimal(100))
-
-        line_total = price * item.quantity
-        total += line_total
-
         order_item = OrderItem.objects.create(
             order=order,
             product=product,
@@ -44,9 +38,14 @@ def create_order_from_cart(user, note=""):
             sale=sale,
         )
 
+        if sale:
+            price = price - (price * Decimal(sale) / Decimal(100))
+        line_total = price * item.quantity
+        total += line_total
+
         if item.filter_values.exists():
             order_item.filter_values.set(item.filter_values.all())
-
+    print(total)
     order.total = total
     order.save(update_fields=["total"])
 
