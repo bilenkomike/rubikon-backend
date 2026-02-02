@@ -1,11 +1,12 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from django.db import transaction
 from .models import Order, OrderItem, OrderStatus, CartItem
 from .serializers import OrderSerializer
-
+from .services import create_order_from_cart
 from .models import CartItem
 from products.models import Product, FilterValue
 from .serializers import CartItemSerializer
@@ -87,56 +88,84 @@ class CartRemoveAPIView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+# class CheckoutAPIView(APIView):
+#     permission_classes = [IsAuthenticated]
+#
+#     def post(self, request):
+#         cart_items = (
+#             CartItem.objects
+#             .filter(user=request.user)
+#             .select_related("product")
+#             .prefetch_related("filter_values")
+#         )
+#
+#         if not cart_items.exists():
+#             return Response(
+#                 {"detail": "Cart is empty"},
+#                 status=status.HTTP_400_BAD_REQUEST,
+#             )
+#
+#         with transaction.atomic():
+#             order = Order.objects.create(
+#                 buyer=request.user,
+#                 status=OrderStatus.PLACED,
+#                 total=0,
+#                 note=request.data.get("note", ""),
+#             )
+#
+#             total = 0
+#
+#             for item in cart_items:
+#                 price = item.product.price
+#                 sale = item.product.sale or 0
+#                 discounted = price * (100 - sale) / 100
+#
+#                 OrderItem.objects.create(
+#                     order=order,
+#                     product=item.product,
+#                     price=price,
+#                     quantity=item.quantity,
+#                     sale=sale,
+#                 ).filter_values.set(item.filter_values.all())
+#
+#                 total += discounted * item.quantity
+#
+#             order.total = total
+#             order.save()
+#
+#             cart_items.delete()
+#
+#         return Response(
+#             OrderSerializer(order).data,
+#             status=status.HTTP_201_CREATED,
+#         )
+
+# from rest_framework.views import APIView
+# from rest_framework.permissions import IsAuthenticated
+# from rest_framework.response import Response
+# from rest_framework.exceptions import ValidationError
+#
+
+# from orders.serializers.order import OrderReadSerializer
+
+
 class CheckoutAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        cart_items = (
-            CartItem.objects
-            .filter(user=request.user)
-            .select_related("product")
-            .prefetch_related("filter_values")
-        )
+        note = request.data.get("note", "")
 
-        if not cart_items.exists():
-            return Response(
-                {"detail": "Cart is empty"},
-                status=status.HTTP_400_BAD_REQUEST,
+        try:
+            order = create_order_from_cart(
+                user=request.user,
+                note=note,
             )
-
-        with transaction.atomic():
-            order = Order.objects.create(
-                buyer=request.user,
-                status=OrderStatus.PLACED,
-                total=0,
-                note=request.data.get("note", ""),
-            )
-
-            total = 0
-
-            for item in cart_items:
-                price = item.product.price
-                sale = item.product.sale or 0
-                discounted = price * (100 - sale) / 100
-
-                OrderItem.objects.create(
-                    order=order,
-                    product=item.product,
-                    price=price,
-                    quantity=item.quantity,
-                    sale=sale,
-                ).filter_values.set(item.filter_values.all())
-
-                total += discounted * item.quantity
-
-            order.total = total
-            order.save()
-
-            cart_items.delete()
+        except ValueError as e:
+            raise ValidationError(str(e))
 
         return Response(
             OrderSerializer(order).data,
-            status=status.HTTP_201_CREATED,
+            status=201,
         )
 
 
