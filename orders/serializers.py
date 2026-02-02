@@ -39,7 +39,6 @@ class CartItemSerializer(ModelSerializer):
 
 class OrderItemSerializer(ModelSerializer):
     filter_values = SerializerMethodField()
-    total = SerializerMethodField()
     product = ProductSmallSerializer()
 
     class Meta:
