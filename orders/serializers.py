@@ -38,28 +38,21 @@ class CartItemSerializer(ModelSerializer):
 
 
 class OrderItemSerializer(ModelSerializer):
-    product_title = SerializerMethodField()
     filter_values = SerializerMethodField()
     total = SerializerMethodField()
+    product = ProductSmallSerializer()
 
     class Meta:
         model = OrderItem
         fields = (
             "id",
+            "order",
             "product",
-            "product_title",
             "price",
             "quantity",
             "sale",
             "filter_values",
-            "total",
         )
-
-    def get_product_title(self, obj):
-        return obj.product.name
-
-    def get_total(self, obj):
-        return obj.get_total()
 
     def get_filter_values(self, obj):
         return [
