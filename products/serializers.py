@@ -135,6 +135,7 @@ class ProductSmallSerializer(ModelSerializer):
             "category",
             "image",
             "statistics",
+            "vendor_code_public",
         )
 
     def get_image(self, obj):
@@ -190,6 +191,7 @@ class ProductBigSerializer(ModelSerializer):
             "statistics",
             "reviews",
             "created_at",
+            "vendor_code_public",
         )
 
 
