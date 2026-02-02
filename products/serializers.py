@@ -212,6 +212,7 @@ class FilterTypeWithValuesSerializer(ModelSerializer):
 
 class PromoBannerSerializer(ModelSerializer):
     category = CategorySerializer()
+
     class Meta:
         model = PromoBanner
         fields = (

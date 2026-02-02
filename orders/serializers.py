@@ -20,7 +20,11 @@ class CartItemSerializer(ModelSerializer):
         )
 
     def get_total(self, obj):
-        return obj.get_total()
+        price = obj.product.price
+        if obj.product.sale:
+            price = price - (price * obj.product.sale / 100)
+        total = price * obj.quantity
+        return total
 
     def get_filter_values(self, obj):
         return [
