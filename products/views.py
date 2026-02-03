@@ -5,7 +5,8 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView
 from rest_framework.permissions import AllowAny
 from django.db.models import Sum, F
-from django.db.models import Count, Q
+from django.db.models import Q, Count, Case, When, IntegerField
+
 from django.db.models.functions import Coalesce
 from django.db.models import Value
 from .models import (
@@ -35,6 +36,61 @@ class ProductPagination(PageNumberPagination):
     max_page_size = 48
 
 
+# class ProductListAPIView(ListAPIView):
+#     serializer_class = ProductSmallSerializer
+#     permission_classes = [AllowAny]
+#     pagination_class = ProductPagination
+#
+#     def get_queryset(self):
+#         qs = (
+#             Product.objects
+#             .select_related("category", "statistics")
+#             .prefetch_related("productimage_set", "filters")
+#         )
+#
+#         params = self.request.query_params
+#
+#         # 🔥 HOME PAGE (TRENDING)
+#         if params.get("home") in {"1", "true", "True"}:
+#             return qs.order_by("-statistics__sold")
+#
+#         subcategory = params.get("subcategory")
+#         if subcategory:
+#             qs = qs.filter(category__slug=subcategory)
+#
+#         # filters = params.get("filters")
+#         # if filters:
+#         #     filter_ids = [int(f) for f in filters.split(",") if f.isdigit()]
+#         #     if filter_ids:
+#         #         qs = qs.filter(filters__id__in=filter_ids).distinct()
+#         filters = params.get("filters")
+#         if filters:
+#             filter_ids = [int(f) for f in filters.split(",") if f.isdigit()]
+#
+#             if filter_ids:
+#                 qs = (
+#                     qs.filter(filters__id__in=filter_ids)
+#                     .annotate(
+#                         matched_filters=Count(
+#                             "filters",
+#                             filter=Q(filters__id__in=filter_ids),
+#                             distinct=True,
+#                         )
+#                     )
+#                     .filter(matched_filters=len(filter_ids))
+#                 )
+#
+#         price_min = params.get("price_min")
+#         if price_min:
+#             qs = qs.filter(price__gte=price_min)
+#
+#         price_max = params.get("price_max")
+#         if price_max:
+#             qs = qs.filter(price__lte=price_max)
+#
+#         return qs.order_by("-created_at")
+
+
 class ProductListAPIView(ListAPIView):
     serializer_class = ProductSmallSerializer
     permission_classes = [AllowAny]
@@ -53,19 +109,38 @@ class ProductListAPIView(ListAPIView):
         if params.get("home") in {"1", "true", "True"}:
             return qs.order_by("-statistics__sold")
 
-        subcategory = params.get("subcategory")
-        if subcategory:
-            qs = qs.filter(category__slug=subcategory)
+        # 🔍 SEARCH → closest SubCategory
+        search = params.get("search")
+        if search:
+            subcategory = (
+                SubCategory.objects
+                .annotate(
+                    relevance=Case(
+                        When(name__iexact=search, then=3),
+                        When(name_ru__iexact=search, then=3),
+                        When(name__icontains=search, then=2),
+                        When(name_ru__icontains=search, then=2),
+                        default=0,
+                        output_field=IntegerField(),
+                    )
+                )
+                .filter(relevance__gt=0)
+                .order_by("-relevance")
+                .first()
+            )
 
-        # filters = params.get("filters")
-        # if filters:
-        #     filter_ids = [int(f) for f in filters.split(",") if f.isdigit()]
-        #     if filter_ids:
-        #         qs = qs.filter(filters__id__in=filter_ids).distinct()
+            if subcategory:
+                qs = qs.filter(category=subcategory)
+
+        # 📂 Explicit subcategory slug (overrides search)
+        subcategory_slug = params.get("subcategory")
+        if subcategory_slug:
+            qs = qs.filter(category__slug=subcategory_slug)
+
+        # 🧩 FILTERS (must match all)
         filters = params.get("filters")
         if filters:
             filter_ids = [int(f) for f in filters.split(",") if f.isdigit()]
-
             if filter_ids:
                 qs = (
                     qs.filter(filters__id__in=filter_ids)
@@ -79,6 +154,7 @@ class ProductListAPIView(ListAPIView):
                     .filter(matched_filters=len(filter_ids))
                 )
 
+        # 💰 PRICE
         price_min = params.get("price_min")
         if price_min:
             qs = qs.filter(price__gte=price_min)
