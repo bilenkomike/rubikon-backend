@@ -91,11 +91,23 @@ class ProductPagination(PageNumberPagination):
 #         return qs.order_by("-created_at")
 
 
-class FilterListAPIView(APIView):
+class ProductListAPIView(ListAPIView):
+    serializer_class = ProductSmallSerializer
     permission_classes = [AllowAny]
+    pagination_class = ProductPagination
 
-    def get(self, request):
-        params = request.query_params
+    def get_queryset(self):
+        params = self.request.query_params
+
+        qs = (
+            Product.objects
+            .select_related("category", "statistics")
+            .prefetch_related("productimage_set", "filters")
+        )
+
+        # 🔥 HOME PAGE (TRENDING)
+        if params.get("home") in {"1", "true", "True"}:
+            return qs.order_by("-statistics__sold")
 
         subcategory_slug = params.get("subcategory")
         search = params.get("search")
@@ -105,19 +117,17 @@ class FilterListAPIView(APIView):
                 "detail": "Either 'subcategory' or 'search' query param is required"
             })
 
-        # 🔍 SEARCH → find closest subcategory
+        # 🔍 SEARCH FLOW → resolve closest subcategory
         if search:
             subcategory = (
                 SubCategory.objects
                 .annotate(
-                    relevance=(
-                        Case(
-                            When(name__iexact=search, then=3),
-                            When(name_ru__iexact=search, then=3),
-                            When(name__icontains=search, then=2),
-                            When(name_ru__icontains=search, then=2),
-                            default=0,
-                        )
+                    relevance=Case(
+                        When(name__iexact=search, then=3),
+                        When(name_ru__iexact=search, then=3),
+                        When(name__icontains=search, then=2),
+                        When(name_ru__icontains=search, then=2),
+                        default=0,
                     )
                 )
                 .filter(relevance__gt=0)
@@ -126,11 +136,7 @@ class FilterListAPIView(APIView):
             )
 
             if not subcategory:
-                return Response({
-                    "min_price": 0,
-                    "max_price": 0,
-                    "filters": [],
-                })
+                return Product.objects.none()
 
         # 📂 SUBCATEGORY FLOW
         else:
@@ -143,29 +149,36 @@ class FilterListAPIView(APIView):
                     "subcategory": "Invalid subcategory slug"
                 })
 
-        # 📦 FILTER TYPES
-        filters = (
-            FilterType.objects
-            .filter(category=subcategory.category)
-            .prefetch_related("filtervalue_set")
-            .order_by("id")
-        )
+        qs = qs.filter(category=subcategory)
 
-        # 💰 PRICE RANGE
-        price = (
-            Product.objects
-            .filter(category=subcategory)
-            .aggregate(
-                min_price=Min("price"),
-                max_price=Max("price"),
-            )
-        )
+        # 🧩 FILTER VALUES (AND logic)
+        filters = params.get("filters")
+        if filters:
+            filter_ids = [int(f) for f in filters.split(",") if f.isdigit()]
 
-        return Response({
-            "min_price": price["min_price"],
-            "max_price": price["max_price"],
-            "filters": FilterTypeWithValuesSerializer(filters, many=True).data,
-        })
+            if filter_ids:
+                qs = (
+                    qs.filter(filters__id__in=filter_ids)
+                    .annotate(
+                        matched_filters=Count(
+                            "filters",
+                            filter=Q(filters__id__in=filter_ids),
+                            distinct=True,
+                        )
+                    )
+                    .filter(matched_filters=len(filter_ids))
+                )
+
+        # 💰 PRICE FILTER
+        price_min = params.get("price_min")
+        if price_min:
+            qs = qs.filter(price__gte=price_min)
+
+        price_max = params.get("price_max")
+        if price_max:
+            qs = qs.filter(price__lte=price_max)
+
+        return qs.order_by("-created_at")
 
 class ProductDetailAPIView(RetrieveAPIView):
     serializer_class = ProductBigSerializer
