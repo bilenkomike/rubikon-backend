@@ -5,7 +5,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView
 from rest_framework.permissions import AllowAny
 from django.db.models import Sum, F
-from django.db.models import Q, Count, Case, When, IntegerField
+from django.db.models import Q, Count, Case, When, IntegerField, Value
 
 from django.db.models.functions import Coalesce
 from django.db.models import Value
@@ -89,6 +89,54 @@ class ProductPagination(PageNumberPagination):
 #             qs = qs.filter(price__lte=price_max)
 #
 #         return qs.order_by("-created_at")
+
+
+class ProductSearchAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        query = request.query_params.get("search")
+
+        if not query:
+            raise ValidationError({"search": "Search query is required"})
+
+        q = query.strip()
+
+        # -----------------------------
+        # 1. SubCategory relevance
+        # -----------------------------
+        subcategories = (
+            SubCategory.objects
+            .annotate(
+                relevance=Case(
+                    When(name__iexact=q, then=Value(10)),
+                    When(name_ru__iexact=q, then=Value(10)),
+                    When(name__icontains=q, then=Value(5)),
+                    When(name_ru__icontains=q, then=Value(5)),
+                    default=Value(0),
+                    output_field=IntegerField(),
+                ),
+                product_hits=Count(
+                    "product",
+                    filter=Q(product__name__icontains=q) |
+                           Q(product__name_ru__icontains=q),
+                    distinct=True,
+                ),
+            )
+            .filter(
+                Q(name__icontains=q) |
+                Q(name_ru__icontains=q) |
+                Q(product__name__icontains=q) |
+                Q(product__name_ru__icontains=q)
+            )
+            .order_by("-relevance", "-product_hits")
+            .distinct()
+        )
+
+        best_subcategory = subcategories.first()
+
+
+        return Response(SubCategorySerializer(best_subcategory).data if best_subcategory else None)
 
 
 class ProductListAPIView(ListAPIView):
