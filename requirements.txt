@@ -5,8 +5,6 @@ djangorestframework-simplejwt
 django-autoslug
 Pillow
 
-# --- API / Documentation ---
-drf-yasg==1.21.7
 
 # --- Configuration & Environment ---
 python-decouple==3.8
