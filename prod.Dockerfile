@@ -7,6 +7,7 @@ WORKDIR /app
 
 FROM base AS builder
 RUN apt-get update && apt-get install -y build-essential libpq-dev
+RUN pip install --upgrade pip setuptools wheel
 COPY requirements.txt .
 RUN pip install --prefix=/install -r requirements.txt
 

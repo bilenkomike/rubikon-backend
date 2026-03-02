@@ -7,3 +7,12 @@
 media/
 __pycache__/
 dev.requirements.txt
+# Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtualenv
+venv/
+.env
